@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"time"
 
 	"github.com/DayDzen/backendSandbox/grpc-go-course/calculator/calculatorpb"
 
@@ -22,6 +23,27 @@ func (*server) Sum(ctx context.Context, req *calculatorpb.SumRequest) (*calculat
 		SumResult: sum,
 	}
 	return res, nil
+}
+
+func (*server) PrimeNumberDecomposition(req *calculatorpb.PrimeNumberDecompositionRequest, stream calculatorpb.CalculatorService_PrimeNumberDecompositionServer) error {
+	fmt.Printf("The PrimeNumberDecomposition function was invoked with %v\n", req)
+	var k int32
+	k = 2
+	number := req.GetNumber()
+	for number > 1 {
+		if number%k == 0 {
+			res := &calculatorpb.PrimeNumberDecompositionResponse{
+				PrimeNumber: k,
+			}
+			stream.Send(res)
+			number = number / k
+
+			time.Sleep(1000 * time.Millisecond)
+		} else {
+			k++
+		}
+	}
+	return nil
 }
 
 func main() {
