@@ -31,7 +31,7 @@ func main() {
 		log.Fatalf("Listener server problems: %v", err)
 	}
 	s := grpc.NewServer()
-	calculatorpb.RegisterSumServiceServer(s, &server{})
+	calculatorpb.RegisterCalculatorServiceServer(s, &server{})
 
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("Failed Serve: %v", err)

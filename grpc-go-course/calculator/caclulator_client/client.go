@@ -17,11 +17,11 @@ func main() {
 	}
 	defer cc.Close()
 
-	c := calculatorpb.NewSumServiceClient(cc)
+	c := calculatorpb.NewCalculatorServiceClient(cc)
 	doUnary(c)
 }
 
-func doUnary(c calculatorpb.SumServiceClient) {
+func doUnary(c calculatorpb.CalculatorServiceClient) {
 	fmt.Println("Srting to do Unary RPC")
 	req := &calculatorpb.SumRequest{
 		FirstNumber:  32,

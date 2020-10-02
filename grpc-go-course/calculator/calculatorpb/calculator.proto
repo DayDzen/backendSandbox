@@ -11,7 +11,14 @@ message SumRequest {
 
 message SumResponse { int32 sum_result = 1; }
 
-service SumService {
+message PrimeNumberDecompositionRequest { int32 number = 1; }
+
+message PrimeNumberDecompositionResponse { int32 prime_number = 1; }
+
+service CalculatorService {
   // Unary API
   rpc Sum(SumRequest) returns (SumResponse) {}
+  // Stream API
+  rpc PrimeNumberDecomposition(PrimeNumberDecompositionRequest)
+      returns (stream PrimeNumberDecompositionResponse) {};
 }
