@@ -38,7 +38,7 @@ func (*server) PrimeNumberDecomposition(req *calculatorpb.PrimeNumberDecompositi
 			stream.Send(res)
 			number = number / k
 
-			time.Sleep(1000 * time.Millisecond)
+			time.Sleep(500 * time.Millisecond)
 		} else {
 			k++
 		}
