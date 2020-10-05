@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"time"
 
 	"github.com/DayDzen/backendSandbox/grpc-go-course/greet/greetpb"
 
@@ -103,6 +104,8 @@ func doClientStreaming(c greetpb.GreetServiceClient) {
 
 	for _, req := range request {
 		err := lgClient.Send(req)
+		log.Printf("Sended %v", req.GetGreeting().GetFirstName())
+		time.Sleep(2000 * time.Millisecond)
 		if err != nil {
 			log.Fatalf("Failed sending request: %v", err)
 		}
