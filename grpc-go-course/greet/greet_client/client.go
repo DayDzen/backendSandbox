@@ -27,7 +27,9 @@ func main() {
 
 	// doServerStreaming(c)
 
-	doClientStreaming(c)
+	// doClientStreaming(c)
+
+	doBiDiStreaming(c)
 }
 
 func doUnary(c greetpb.GreetServiceClient) {
@@ -117,4 +119,67 @@ func doClientStreaming(c greetpb.GreetServiceClient) {
 	}
 
 	log.Print(lgResp.GetResult())
+}
+
+func doBiDiStreaming(c greetpb.GreetServiceClient) {
+	fmt.Println("Starting a BiDi Streaming RPC...")
+	request := []*greetpb.GreetEveryoneRequest{
+		&greetpb.GreetEveryoneRequest{
+			Greeting: &greetpb.Greeting{
+				FirstName: "Ilya",
+				LastName:  "Izmailov",
+			},
+		},
+		&greetpb.GreetEveryoneRequest{
+			Greeting: &greetpb.Greeting{
+				FirstName: "Lidiya",
+				LastName:  "Izmailova",
+			},
+		},
+		&greetpb.GreetEveryoneRequest{
+			Greeting: &greetpb.Greeting{
+				FirstName: "James",
+				LastName:  "Bond",
+			},
+		},
+	}
+	geClient, err := c.GreetEveryone(context.Background())
+	if err != nil {
+		log.Fatalf("Failed while getting client from GreetEveryone: %v", err)
+		return
+	}
+
+	waitc := make(chan struct{})
+	go func() {
+		for _, req := range request {
+			log.Printf("Sending %v", req.GetGreeting().GetFirstName())
+			err := geClient.Send(req)
+			time.Sleep(1000 * time.Millisecond)
+			if err != nil {
+				log.Fatalf("Failed sending request: %v", err)
+				return
+			}
+		}
+		err := geClient.CloseSend()
+		if err != nil {
+			log.Fatalf("Failed closing sending channel from client: %v", err)
+			return
+		}
+	}()
+
+	go func() {
+		for {
+			res, err := geClient.Recv()
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				log.Fatalf("Failed while getting response from server: %v", err)
+				break
+			}
+			fmt.Printf("Recieved: %v\n", res.GetResult())
+		}
+		close(waitc)
+	}()
+	<-waitc
 }
