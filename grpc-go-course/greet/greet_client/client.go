@@ -24,7 +24,9 @@ func main() {
 	// fmt.Printf("Created client: %f", c)
 	// doUnary(c)
 
-	doServerStreaming(c)
+	// doServerStreaming(c)
+
+	doClientStreaming(c)
 }
 
 func doUnary(c greetpb.GreetServiceClient) {
@@ -68,4 +70,48 @@ func doServerStreaming(c greetpb.GreetServiceClient) {
 		log.Printf("Response from GreetManyTimes: %v", msg.GetResult())
 	}
 
+}
+
+func doClientStreaming(c greetpb.GreetServiceClient) {
+	fmt.Println("Starting a Client Streaming RPC...")
+
+	request := []*greetpb.LongGreetRequest{
+		&greetpb.LongGreetRequest{
+			Greeting: &greetpb.Greeting{
+				FirstName: "Ilya",
+				LastName:  "Izmailov",
+			},
+		},
+		&greetpb.LongGreetRequest{
+			Greeting: &greetpb.Greeting{
+				FirstName: "Lidiya",
+				LastName:  "Izmailova",
+			},
+		},
+		&greetpb.LongGreetRequest{
+			Greeting: &greetpb.Greeting{
+				FirstName: "James",
+				LastName:  "Bond",
+			},
+		},
+	}
+
+	lgClient, err := c.LongGreet(context.Background())
+	if err != nil {
+		log.Fatalf("Failed getting LongGreetClient: %v", err)
+	}
+
+	for _, req := range request {
+		err := lgClient.Send(req)
+		if err != nil {
+			log.Fatalf("Failed sending request: %v", err)
+		}
+	}
+
+	lgResp, err := lgClient.CloseAndRecv()
+	if err != nil {
+		log.Fatalf("Failed getting response: %v", err)
+	}
+
+	log.Printf(lgResp.GetResult())
 }
