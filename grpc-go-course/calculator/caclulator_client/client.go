@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"time"
 
 	"github.com/DayDzen/backendSandbox/grpc-go-course/calculator/calculatorpb"
 	"google.golang.org/grpc"
@@ -20,7 +21,8 @@ func main() {
 
 	c := calculatorpb.NewCalculatorServiceClient(cc)
 	// doUnary(c)
-	decompositeNumber(c)
+	//decompositeNumber(c)
+	computeAvarage(c)
 }
 
 func doUnary(c calculatorpb.CalculatorServiceClient) {
@@ -56,4 +58,42 @@ func decompositeNumber(c calculatorpb.CalculatorServiceClient) {
 		}
 		log.Printf("Response from PrimeNumberDecomposition: %v", decResp.GetPrimeNumber())
 	}
+}
+
+func computeAvarage(c calculatorpb.CalculatorServiceClient) {
+	fmt.Println("Computing avarage of numbers from client")
+	caClient, err := c.ComputeAverage(context.Background())
+	if err != nil {
+		log.Fatalf("Failed client creating in computeAvarage function: %v", err)
+	}
+	numbers := []*calculatorpb.ComputeAverageRequest{
+		&calculatorpb.ComputeAverageRequest{
+			Number: 32,
+		},
+		&calculatorpb.ComputeAverageRequest{
+			Number: 42,
+		},
+		&calculatorpb.ComputeAverageRequest{
+			Number: 52,
+		},
+		&calculatorpb.ComputeAverageRequest{
+			Number: 48,
+		},
+		&calculatorpb.ComputeAverageRequest{
+			Number: 64,
+		},
+	}
+	for _, number := range numbers {
+		err := caClient.Send(number)
+		time.Sleep(500 * time.Millisecond)
+		log.Printf("Sended number: %v\n", number.GetNumber())
+		if err != nil {
+			log.Fatalf("Failed while sending numbers: %v", err)
+		}
+	}
+	res, err := caClient.CloseAndRecv()
+	if err != nil {
+		log.Fatalf("Failed getting response from server: %v", err)
+	}
+	log.Printf("Avarage of numbers is %v", res.GetAvarage())
 }

@@ -33,7 +33,10 @@ func (*server) GreetManyTimes(req *greetpb.GreetManyTimesRequest, stream greetpb
 		res := &greetpb.GreetManyTimesResponse{
 			Result: result,
 		}
-		stream.Send(res)
+		err := stream.Send(res)
+		if err != nil {
+			log.Fatalf("Failed while sending response from GreetManyTimes: %v", err)
+		}
 		time.Sleep(1000 * time.Millisecond)
 	}
 	return nil

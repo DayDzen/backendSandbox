@@ -116,5 +116,5 @@ func doClientStreaming(c greetpb.GreetServiceClient) {
 		log.Fatalf("Failed getting response: %v", err)
 	}
 
-	log.Printf(lgResp.GetResult())
+	log.Print(lgResp.GetResult())
 }

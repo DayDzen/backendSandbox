@@ -15,10 +15,17 @@ message PrimeNumberDecompositionRequest { int32 number = 1; }
 
 message PrimeNumberDecompositionResponse { int32 prime_number = 1; }
 
+message ComputeAverageRequest { double number = 1; }
+
+message ComputeAverageResponse { double avarage = 1; }
+
 service CalculatorService {
   // Unary API
   rpc Sum(SumRequest) returns (SumResponse) {}
-  // Stream API
+  // RPC Server Streaming API
   rpc PrimeNumberDecomposition(PrimeNumberDecompositionRequest)
       returns (stream PrimeNumberDecompositionResponse) {};
+  // RPC Client Streaming API
+  rpc ComputeAverage(stream ComputeAverageRequest)
+      returns (ComputeAverageResponse) {};
 }
