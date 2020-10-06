@@ -22,7 +22,8 @@ func main() {
 	c := calculatorpb.NewCalculatorServiceClient(cc)
 	// doUnary(c)
 	//decompositeNumber(c)
-	computeAvarage(c)
+	// computeAvarage(c)
+	findMaximum(c)
 }
 
 func doUnary(c calculatorpb.CalculatorServiceClient) {
@@ -96,4 +97,75 @@ func computeAvarage(c calculatorpb.CalculatorServiceClient) {
 		log.Fatalf("Failed getting response from server: %v", err)
 	}
 	log.Printf("Avarage of numbers is %v", res.GetAvarage())
+}
+
+func findMaximum(c calculatorpb.CalculatorServiceClient) {
+	numbers := []*calculatorpb.FindMaximumRequest{
+		&calculatorpb.FindMaximumRequest{
+			Number: 3,
+		},
+		&calculatorpb.FindMaximumRequest{
+			Number: 23,
+		},
+		&calculatorpb.FindMaximumRequest{
+			Number: 4,
+		},
+		&calculatorpb.FindMaximumRequest{
+			Number: 32,
+		},
+		&calculatorpb.FindMaximumRequest{
+			Number: 51,
+		},
+		&calculatorpb.FindMaximumRequest{
+			Number: -1,
+		},
+		&calculatorpb.FindMaximumRequest{
+			Number: 60,
+		},
+		&calculatorpb.FindMaximumRequest{
+			Number: 4,
+		},
+		&calculatorpb.FindMaximumRequest{
+			Number: 100,
+		},
+	}
+
+	stream, err := c.FindMaximum(context.Background())
+	if err != nil {
+		log.Fatalf("Failed while creating stream for client: %v", err)
+	}
+	waitc := make(chan struct{})
+
+	go func() {
+		for _, number := range numbers {
+			err := stream.Send(number)
+			log.Printf("Sended number: %v", number.GetNumber())
+			time.Sleep(500 * time.Millisecond)
+			if err != nil {
+				log.Fatalf("Failed while sending number to Server from Client: %v", err)
+				return
+			}
+		}
+		err := stream.CloseSend()
+		if err != nil {
+			log.Fatalf("Failed while closing stream for sending numuber: %v", err)
+		}
+	}()
+
+	go func() {
+		for {
+			res, err := stream.Recv()
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				log.Fatalf("Failed while getting response from Server: %v", err)
+				break
+			}
+			log.Printf("NEW MAXIMUM IS: %v", res.GetMaxNumber())
+		}
+		close(waitc)
+	}()
+
+	<-waitc
 }
