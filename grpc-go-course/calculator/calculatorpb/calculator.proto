@@ -23,6 +23,10 @@ message FindMaximumRequest { int64 number = 1; }
 
 message FindMaximumResponse { int64 max_number = 1; }
 
+message SquareRootRequest { int32 number = 1; }
+
+message SquareRootResponse { double number_root = 1; }
+
 service CalculatorService {
   // Unary API
   rpc Sum(SumRequest) returns (SumResponse) {}
@@ -35,4 +39,8 @@ service CalculatorService {
   // RPC Bi-Directional Streaming API
   rpc FindMaximum(stream FindMaximumRequest)
       returns (stream FindMaximumResponse) {};
+  // Error handling
+  // This PRC will throw an exception if the sent number is negative
+  // The Error being sent is of type INVALID_ARGUMENT
+  rpc SquareRoot(SquareRootRequest) returns (SquareRootResponse) {};
 }

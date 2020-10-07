@@ -7,6 +7,10 @@ import (
 	"log"
 	"time"
 
+	"google.golang.org/grpc/codes"
+
+	"google.golang.org/grpc/status"
+
 	"github.com/DayDzen/backendSandbox/grpc-go-course/calculator/calculatorpb"
 	"google.golang.org/grpc"
 )
@@ -23,11 +27,12 @@ func main() {
 	// doUnary(c)
 	//decompositeNumber(c)
 	// computeAvarage(c)
-	findMaximum(c)
+	// findMaximum(c)
+	doErrorUnary(c)
 }
 
 func doUnary(c calculatorpb.CalculatorServiceClient) {
-	fmt.Println("Srting to do Unary RPC")
+	fmt.Println("Starting to do Unary RPC")
 	req := &calculatorpb.SumRequest{
 		FirstNumber:  32,
 		SecondNumber: 54,
@@ -168,4 +173,25 @@ func findMaximum(c calculatorpb.CalculatorServiceClient) {
 	}()
 
 	<-waitc
+}
+
+func doErrorUnary(c calculatorpb.CalculatorServiceClient) {
+	fmt.Println("Starting to do Error Unary RPC")
+	req := &calculatorpb.SquareRootRequest{
+		Number: 11,
+	}
+	res, err := c.SquareRoot(context.Background(), req)
+	if err != nil {
+		respErr, ok := status.FromError(err)
+		if ok {
+			fmt.Println(respErr.Message())
+			fmt.Println(respErr.Code())
+			if respErr.Code() == codes.InvalidArgument {
+				fmt.Println("We sent negative number")
+			}
+		} else {
+			log.Fatalf("Big Errror calling SquareRoot: %v", err)
+		}
+	}
+	fmt.Printf("Result of %v is: %v\n", req.GetNumber(), res.GetNumberRoot())
 }
