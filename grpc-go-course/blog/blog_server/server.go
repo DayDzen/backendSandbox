@@ -60,6 +60,7 @@ func (*server) CreateBlog(ctx context.Context, req *blogpb.CreateBlogRequest) (*
 }
 
 func (*server) ReadBlog(ctx context.Context, req *blogpb.ReadBlogRequest) (*blogpb.ReadBlogResponse, error) {
+	fmt.Println("Read Blog Request")
 	blogID := req.GetBlogId()
 	oid, err := primitive.ObjectIDFromHex(blogID)
 	if err != nil {
