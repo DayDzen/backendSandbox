@@ -80,12 +80,59 @@ func (*server) ReadBlog(ctx context.Context, req *blogpb.ReadBlogRequest) (*blog
 		)
 	}
 	return &blogpb.ReadBlogResponse{
-		Blog: &blogpb.Blog{
-			Id:       data.ID.Hex(),
-			AuthorId: data.AuthorID,
-			Title:    data.Title,
-			Content:  data.Content,
-		},
+		Blog: dataToBlogPb(data),
+	}, nil
+}
+
+func dataToBlogPb(data *blogItem) *blogpb.Blog {
+	return &blogpb.Blog{
+		Id:       data.ID.Hex(),
+		AuthorId: data.AuthorID,
+		Title:    data.Title,
+		Content:  data.Content,
+	}
+}
+
+func (*server) UpdateBlog(ctx context.Context, req *blogpb.UpdateBlogRequest) (*blogpb.UpdateBlogResponse, error) {
+	fmt.Println("Read Blog Request")
+
+	blog := req.GetBlog()
+	fmt.Printf("NEW BLOG IS: %v\n", blog)
+
+	oid, err := primitive.ObjectIDFromHex(blog.GetId())
+	if err != nil {
+		return nil, status.Errorf(
+			codes.InvalidArgument,
+			fmt.Sprintf("Cannot parse ID: %v", err),
+		)
+	}
+	data := &blogItem{}
+	filter := primitive.M{"_id": oid}
+
+	singleRes := collection.FindOne(context.Background(), filter)
+	if err := singleRes.Decode(data); err != nil {
+		return nil, status.Errorf(
+			codes.NotFound,
+			fmt.Sprintf("Cannot find blog with this id: %v", err),
+		)
+	}
+
+	data.AuthorID = blog.GetAuthorId()
+	data.Title = blog.GetTitle()
+	data.Content = blog.GetContent()
+
+	_, updateRrr := collection.ReplaceOne(context.Background(), filter, data)
+	if updateRrr != nil {
+		return nil, status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("Cannot update object in MongoDB: %v", updateRrr),
+		)
+	}
+
+	fmt.Printf("NEW BLOG IS: %v\n", data)
+	fmt.Printf("NEW BLOG IS: %v\n", dataToBlogPb(data))
+	return &blogpb.UpdateBlogResponse{
+		Blog: dataToBlogPb(data),
 	}, nil
 }
 
