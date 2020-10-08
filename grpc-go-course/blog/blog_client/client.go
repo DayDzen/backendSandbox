@@ -27,7 +27,9 @@ func main() {
 
 	createdBlog := createBlog(c)
 	blogID := createdBlog.GetId()
-	readBlog(c, blogID)
+	foundBlog := readBlog(c, blogID)
+	updatedBlog := updateBlog(c, foundBlog)
+	fmt.Println(updatedBlog)
 }
 
 func createBlog(c blogpb.BlogServiceClient) *blogpb.Blog {
@@ -50,7 +52,7 @@ func createBlog(c blogpb.BlogServiceClient) *blogpb.Blog {
 	return res.GetBlog()
 }
 
-func readBlog(c blogpb.BlogServiceClient, blogID string) {
+func readBlog(c blogpb.BlogServiceClient, blogID string) *blogpb.Blog {
 	fmt.Println("Reading the blog")
 
 	res, err := c.ReadBlog(context.Background(), &blogpb.ReadBlogRequest{
@@ -60,4 +62,18 @@ func readBlog(c blogpb.BlogServiceClient, blogID string) {
 		log.Fatalf("Error while reading blog: %v", err)
 	}
 	fmt.Printf("Got the blog: %v", res.GetBlog())
+	return res.GetBlog()
+}
+
+func updateBlog(c blogpb.BlogServiceClient, oldBlog *blogpb.Blog) *blogpb.Blog {
+	oldBlog.Content = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+
+	fmt.Println("Updating blog")
+	res, err := c.UpdateBlog(context.Background(), &blogpb.UpdateBlogRequest{
+		Blog: oldBlog,
+	})
+	if err != nil {
+		log.Fatalf("Error while updating blog: %v", err)
+	}
+	return res.GetBlog()
 }

@@ -97,7 +97,6 @@ func (*server) UpdateBlog(ctx context.Context, req *blogpb.UpdateBlogRequest) (*
 	fmt.Println("Read Blog Request")
 
 	blog := req.GetBlog()
-	fmt.Printf("NEW BLOG IS: %v\n", blog)
 
 	oid, err := primitive.ObjectIDFromHex(blog.GetId())
 	if err != nil {
@@ -113,10 +112,9 @@ func (*server) UpdateBlog(ctx context.Context, req *blogpb.UpdateBlogRequest) (*
 	if err := singleRes.Decode(data); err != nil {
 		return nil, status.Errorf(
 			codes.NotFound,
-			fmt.Sprintf("Cannot find blog with this id: %v", err),
+			fmt.Sprintf("Cannot find blog with this id: %v\n", err),
 		)
 	}
-
 	data.AuthorID = blog.GetAuthorId()
 	data.Title = blog.GetTitle()
 	data.Content = blog.GetContent()
@@ -125,12 +123,10 @@ func (*server) UpdateBlog(ctx context.Context, req *blogpb.UpdateBlogRequest) (*
 	if updateRrr != nil {
 		return nil, status.Errorf(
 			codes.Internal,
-			fmt.Sprintf("Cannot update object in MongoDB: %v", updateRrr),
+			fmt.Sprintf("Cannot update object in MongoDB: %v\n", updateRrr),
 		)
 	}
 
-	fmt.Printf("NEW BLOG IS: %v\n", data)
-	fmt.Printf("NEW BLOG IS: %v\n", dataToBlogPb(data))
 	return &blogpb.UpdateBlogResponse{
 		Blog: dataToBlogPb(data),
 	}, nil
@@ -143,7 +139,7 @@ func main() {
 	//Connect to MongoDB
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017"))
 	if err != nil {
-		log.Fatalf("Failed creating new mongodb client: %v", err)
+		log.Fatalf("Failed creating new mongodb client: %v\n", err)
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
@@ -151,7 +147,7 @@ func main() {
 
 	err = client.Connect(ctx)
 	if err != nil {
-		log.Fatalf("Failed connection: %v", err)
+		log.Fatalf("Failed connection: %v\n", err)
 	}
 
 	collection = client.Database("mydb").Collection("blog")
