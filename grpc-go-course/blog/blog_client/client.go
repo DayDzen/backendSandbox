@@ -25,11 +25,13 @@ func main() {
 
 	c := blogpb.NewBlogServiceClient(cc)
 
-	createdBlog := createBlog(c)
-	blogID := createdBlog.GetId()
-	foundBlog := readBlog(c, blogID)
-	updatedBlog := updateBlog(c, foundBlog)
-	fmt.Println(updatedBlog)
+	// createdBlog := createBlog(c)
+	// blogID := createdBlog.GetId()
+	// foundBlog := readBlog(c, blogID)
+	// updatedBlog := updateBlog(c, foundBlog)
+	deletedBlogID := deleteBlog(c, "5f806a6f480458b8326f55f4")
+
+	fmt.Println(deletedBlogID)
 }
 
 func createBlog(c blogpb.BlogServiceClient) *blogpb.Blog {
@@ -48,7 +50,7 @@ func createBlog(c blogpb.BlogServiceClient) *blogpb.Blog {
 		status.Errorf(codes.Internal, fmt.Sprintf("Failed creating blog: %v\n", err))
 	}
 
-	fmt.Printf("Blog that we created: %v", res.GetBlog())
+	fmt.Printf("Blog that we created: %v\n", res.GetBlog())
 	return res.GetBlog()
 }
 
@@ -59,9 +61,9 @@ func readBlog(c blogpb.BlogServiceClient, blogID string) *blogpb.Blog {
 		BlogId: blogID,
 	})
 	if err != nil {
-		log.Fatalf("Error while reading blog: %v", err)
+		log.Fatalf("Error while reading blog: %v\n", err)
 	}
-	fmt.Printf("Got the blog: %v", res.GetBlog())
+	fmt.Printf("Got the blog: %v\n", res.GetBlog())
 	return res.GetBlog()
 }
 
@@ -73,7 +75,22 @@ func updateBlog(c blogpb.BlogServiceClient, oldBlog *blogpb.Blog) *blogpb.Blog {
 		Blog: oldBlog,
 	})
 	if err != nil {
-		log.Fatalf("Error while updating blog: %v", err)
+		log.Fatalf("Error while updating blog: %v\n", err)
 	}
 	return res.GetBlog()
+}
+
+func deleteBlog(c blogpb.BlogServiceClient, blogID string) string {
+	fmt.Printf("Deleting blog with id: %v\n", blogID)
+
+	req := &blogpb.DeleteBlogRequest{
+		BlogId: blogID,
+	}
+
+	res, err := c.DeleteBlog(context.Background(), req)
+	if err != nil {
+		log.Printf("Failed while deleting blog by client: %v\n", err)
+	}
+
+	return res.GetBlogId()
 }
