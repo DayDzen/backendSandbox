@@ -120,11 +120,11 @@ func (*server) UpdateBlog(ctx context.Context, req *blogpb.UpdateBlogRequest) (*
 	data.Title = blog.GetTitle()
 	data.Content = blog.GetContent()
 
-	_, updateRrr := collection.ReplaceOne(context.Background(), filter, data)
-	if updateRrr != nil {
+	_, updateErr := collection.ReplaceOne(context.Background(), filter, data)
+	if updateErr != nil {
 		return nil, status.Errorf(
 			codes.Internal,
-			fmt.Sprintf("Cannot update object in MongoDB: %v\n", updateRrr),
+			fmt.Sprintf("Cannot update object in MongoDB: %v\n", updateErr),
 		)
 	}
 
