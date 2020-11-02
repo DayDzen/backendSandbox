@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -38,5 +39,8 @@ func main() {
 	})
 
 	// Listen and serve on 0.0.0.0:8080
-	r.Run(":8080")
+	err := r.Run(":8080")
+	if err != nil {
+		log.Fatalf("Error while running router: %v", err)
+	}
 }

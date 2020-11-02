@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -32,5 +33,8 @@ func main() {
 		} // true
 	})
 
-	router.Run(":8080")
+	err := router.Run(":8080")
+	if err != nil {
+		log.Fatalf("Error while running router: %v", err)
+	}
 }

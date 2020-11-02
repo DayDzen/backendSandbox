@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -22,5 +23,9 @@ func main() {
 
 		c.String(http.StatusOK, fmt.Sprintf("id: %s; page: %s; name: %s; message: %s", id, page, name, message))
 	})
-	router.Run(":8080")
+
+	err := router.Run(":8080")
+	if err != nil {
+		log.Fatalf("Error while running router: %v", err)
+	}
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,5 +18,8 @@ func main() {
 		names := c.PostFormMap("names")
 		fmt.Printf("ids: %v; names: %v\n", ids, names)
 	})
-	router.Run(":8080")
+	err := router.Run(":8080")
+	if err != nil {
+		log.Fatalf("Error while running router: %v", err)
+	}
 }

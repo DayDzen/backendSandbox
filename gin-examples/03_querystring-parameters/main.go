@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -16,5 +17,8 @@ func main() {
 		lastname := c.Query("lastname") // shortcut for c.Request.URL.Query().Get("lastname")
 		c.String(http.StatusOK, "Hello %s %s", firstname, lastname)
 	})
-	router.Run(":8080")
+	err := router.Run(":8080")
+	if err != nil {
+		log.Fatalf("Error while running router: %v", err)
+	}
 }

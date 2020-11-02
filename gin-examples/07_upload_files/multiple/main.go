@@ -22,9 +22,15 @@ func main() {
 
 			// Upload the file to specific dst.
 			dst := fmt.Sprintf("upload_files/multiple/files/%v", file.Filename)
-			c.SaveUploadedFile(file, dst)
+			err := c.SaveUploadedFile(file, dst)
+			if err != nil {
+				log.Fatalf("Error while saving uploaded file: %v", err)
+			}
 		}
 		c.String(http.StatusOK, fmt.Sprintf("%d files uploaded!", len(files)))
 	})
-	router.Run(":8080")
+	err := router.Run(":8080")
+	if err != nil {
+		log.Fatalf("Error while running router: %v", err)
+	}
 }
